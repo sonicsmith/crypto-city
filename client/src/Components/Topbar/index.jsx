@@ -31,19 +31,24 @@ export default ({
           hoverIndicator
         />
         <Box
-          pad="xsmall"
           round="xsmall"
           onClick={onClickBalance}
           hoverIndicator
+          style={{
+            width: "80%",
+            position: "fixed",
+            left: "50%",
+            marginLeft: "-40%",
+          }}
         >
-          {isWeb3Active && (
+          {isWeb3Active ? (
             <Text textAlign="center">
               Balance: {balance} {REWARD_TOKEN_SYMBOL}
             </Text>
+          ) : (
+            <Text textAlign="center">Connect</Text>
           )}
-          {!isWeb3Active && <Text textAlign="center">Connect</Text>}
         </Box>
-        <Box></Box>
       </Header>
     </Box>
   )
