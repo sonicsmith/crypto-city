@@ -14,7 +14,7 @@ contract CryptoCityMain is REFLECT {
     event Log ( address message );
 
     // Constructor overrides default keeping tokens for contract
-    function setTokenAddress(address tokenAddress) public {
+    function setTokenAddress(address tokenAddress) public onlyOwner() {
         cryptoCityToken = CryptoCityToken(tokenAddress);
     }
 
@@ -30,7 +30,7 @@ contract CryptoCityMain is REFLECT {
         return balanceOf(cityAddress);
     }
 
-    function setPresale(uint256 amount) public {
+    function setPresale(uint256 amount) public onlyOwner() {
         // Take CITY
         uint256 allowance = cryptoCityToken.allowance(msg.sender, address(this));
         require(allowance >= amount, "Allowance not met");
@@ -39,6 +39,7 @@ contract CryptoCityMain is REFLECT {
     }
 
     function purchasePresale() public payable {
+        require(msg.value > 0, "Amount must be more than zero");
         // Convert ETH for CITY
         uint cityAmount = 100 * msg.value;
         require(presaleAmount >= cityAmount, "Presale funds too low");
@@ -52,6 +53,7 @@ contract CryptoCityMain is REFLECT {
     }
 
     function stake(uint256 amount, string memory newMap) public {
+        require(amount > 0, "Amount must be more than zero");
         // Take CITY
         uint256 allowance =
             cryptoCityToken.allowance(msg.sender, address(this));
@@ -64,6 +66,7 @@ contract CryptoCityMain is REFLECT {
     }
 
     function withdrawl(uint256 amount, string memory newMap) public {
+        require(amount > 0, "Amount must be more than zero");
         // Take sCITY
         uint balance = balanceOf(msg.sender);
         require(balance >= amount, "Amount is more than balance");

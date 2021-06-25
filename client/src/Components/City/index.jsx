@@ -115,10 +115,9 @@ const TileInfoPanel = ({
   const { tileTypeNames } = constants.text
   const itemName = tileTypeNames[tileType]
   const nextItemName = tileTypeNames[tileType + 1]
-  const amount = constants.cost.tile[tileType]
-  const nextAmount = constants.cost.tile[tileType + 1]
+  const amount = constants.stakeCost * tileType
+  const nextAmount = constants.stakeCost * (tileType + 1)
   const dailyEarnings = getDailyReward({ amount, apr })
-  const nextDailyEarnings = getDailyReward({ amount: nextAmount, apr })
   const hasEnoughCredits = credits >= nextAmount
   const upgradeExists = tileType < constants.MAX_UPGRADE
 
@@ -135,9 +134,7 @@ const TileInfoPanel = ({
     body.push(
       `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
         constants.REWARD_TOKEN_SYMBOL
-      } to increase your daily earnings to ${formatMoney(nextDailyEarnings)} ${
-        constants.REWARD_TOKEN_SYMBOL
-      } a day.`
+      } to increase your earnings.`
     )
     if (!hasEnoughCredits) {
       body.push(`You need more ${constants.REWARD_TOKEN_NAME} to buy this.`)
@@ -214,14 +211,16 @@ export default ({ credits, cityState, setCityState }) => {
       if (currentAction === actions.buy) {
         const nextItemName = tileTypeNames[selectedTileType + 1]
         const nextAmount = formatMoney(
-          constants.cost.tile[selectedTileType + 1]
+          constants.stakeCost * (selectedTileType + 1)
         )
         setActionQuestion(
           `Buy ${nextItemName} for ${nextAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
         )
       } else {
         const currentItemName = tileTypeNames[selectedTileType]
-        const currentAmount = formatMoney(constants.cost.tile[selectedTileType])
+        const currentAmount = formatMoney(
+          constants.stakeCost * selectedTileType
+        )
         setActionQuestion(
           `Sell ${currentItemName} for ${currentAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
         )

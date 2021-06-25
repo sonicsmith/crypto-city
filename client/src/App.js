@@ -58,7 +58,7 @@ function App() {
 
   // Main State
   const [sideBarOpen, setSideBarOpen] = useState(false)
-  const [page, setPage] = useState(pages.home)
+  const [page, setPage] = useState(pages.exchange)
   const [credits, setCredits] = useState(0)
 
   // City State

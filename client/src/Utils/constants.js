@@ -9,7 +9,7 @@ const main = {
   STAKE_TOKEN_NAME: "Binance Coin",
   REWARD_TOKEN_NAME: "Crypto City Token",
   STAKE_TOKEN_SYMBOL: "BNB",
-  REWARD_TOKEN_SYMBOL: "CCT",
+  REWARD_TOKEN_SYMBOL: "CITY",
   REWARD_TOKEN_DECIMALS: 18,
   REWARD_TOKEN_ADDRESS: "0xc9849e6fdb743d08faee3e34dd2d1bc69ea11a51",
   MAX_UPGRADE: 6,
@@ -17,17 +17,18 @@ const main = {
 }
 
 // cost is in reward token = 100 = 1 BNB
-const cost = {
-  tile: {
-    1: 200,
-    2: 400,
-    3: 600,
-    4: 800,
-    5: 1000,
-    6: 1200,
-    7: 1400,
-  },
-}
+const stakeCost = 200
+// const cost = {
+//   tile: {
+//     1: 200,
+//     2: 400,
+//     3: 600,
+//     4: 800,
+//     5: 1000,
+//     6: 1200,
+//     7: 1400,
+//   },
+// }
 
 const text = {
   tileTypeNames: {
@@ -41,4 +42,4 @@ const text = {
   },
 }
 
-export default { ...main, text, cost }
+export default { ...main, text, stakeCost }

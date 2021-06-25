@@ -5,6 +5,7 @@ import tile_03 from "./tile_03.png"
 import tile_04 from "./tile_04.png"
 import tile_05 from "./tile_05.png"
 import tile_06 from "./tile_06.png"
+import bscLogo from "./bsc-logo.png"
 
 export default {
   tiles: {
@@ -16,4 +17,5 @@ export default {
     5: tile_05,
     6: tile_06,
   },
+  bscLogo,
 }

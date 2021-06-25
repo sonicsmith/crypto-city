@@ -26,10 +26,6 @@ contract REFLECT is Context, Ownable {
     string private _symbol = "sCITY";
     uint8 private _decimals = 18;
 
-function getDebug() public returns (uint){
-    return _getRate();
-}
-
     constructor() public {
         // Contract owns all the tokens
         _rOwned[address(this)] = _rTotal;

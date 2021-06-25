@@ -65,6 +65,20 @@ contract("CryptoCityMain", (accounts) => {
     }
   })
 
+  it("should not allow non owner to set presale", async () => {
+    try {
+      await tokenInstance.approve(mainInstance.address, 1, { from: user1 })
+      await mainInstance.setPresale(1, { from: user1 })
+      assert.ok(false)
+    } catch (e) {
+      assert.equal(
+        e.reason,
+        "Ownable: caller is not the owner",
+        "Should throw not owner error"
+      )
+    }
+  })
+
   it("should not allow a stake without approval", async () => {
     // Initial Stake
     try {
