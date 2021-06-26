@@ -1,4 +1,4 @@
-export default [
+const tileCoords = [
   // { x: -4, y: 0 },
   { x: -3, y: 1 },
   { x: -3, y: -1 },
@@ -16,3 +16,5 @@ export default [
   { x: 1, y: -1 },
   // { x: 2, y: 0 },
 ]
+
+export default tileCoords

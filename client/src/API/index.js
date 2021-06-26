@@ -5,6 +5,10 @@ const dummyMap = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 let provider, account
 
+const buyPresale = () => {
+  //
+}
+
 const setAccount = (_account) => {
   account = _account
 }
@@ -33,13 +37,16 @@ const sellTile = (selectedTile) => {
   })
 }
 
-const getAPR = () => {
-  return new Promise((res) => {
-    res(100)
+const getTokenBalance = () => {
+  if (!provider) {
+    return new Promise((res) => res(0))
+  }
+  return provider.getBalance(account).then((amount) => {
+    return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
   })
 }
 
-const getCreditBalance = () => {
+const getEthBalance = () => {
   if (!provider) {
     return new Promise((res) => res(0))
   }
@@ -52,8 +59,9 @@ export default {
   getMap,
   upgradeTile,
   sellTile,
-  getAPR,
-  getCreditBalance,
+  getEthBalance,
+  getTokenBalance,
   setProvider,
   setAccount,
+  buyPresale,
 }

@@ -1,6 +1,6 @@
 import { Box, Text, Heading } from "grommet"
 
-export default ({}) => {
+export default () => {
   return (
     <Box alignContent="center" fill>
       <Box margin="auto">

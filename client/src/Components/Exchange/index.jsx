@@ -8,17 +8,14 @@ import {
   Box,
   TextInput,
   Image,
-  Distribution,
-  Grid,
 } from "grommet"
-import * as Icons from "grommet-icons"
 import { useState } from "react"
 import images from "./../../Images"
 import constants from "./../../Utils/constants"
+import api from "./../../API"
 
-export default ({}) => {
-  const [ETHAmount, setETHAmount] = useState(0)
-  const ethBalance = 0.101
+export default ({ refreshBalances, ethBalance, tokenBalance }) => {
+  const [spendAmount, setETHAmount] = useState(ethBalance || 0)
   return (
     <Box alignContent="center" fill>
       <Box margin="auto">
@@ -65,23 +62,21 @@ export default ({}) => {
                     size={"small"}
                     width="100%"
                     textAlign="end"
-                  >{`Balance: ${ethBalance}`}</Text>
+                  >{`Balance: ${ethBalance || "-"}`}</Text>
                 </Box>
               </Box>
               <Box direction="row" margin={{ bottom: "small" }}>
                 <Box margin={{ right: "small" }} width="100%">
                   <TextInput
-                    gridArea="header"
                     width="small"
                     type="number"
                     placeholder="0.0"
-                    value={ETHAmount}
+                    value={spendAmount}
                     onChange={(event) => setETHAmount(event.target.value)}
                   />
                 </Box>
                 <Box margin={{ right: "small" }}>
                   <Image
-                    gridArea="nav"
                     width="30"
                     height="30"
                     src={images.bscLogo}
@@ -95,21 +90,64 @@ export default ({}) => {
                 </Box>
               </Box>
             </Box>
+            <Box
+              margin={{ top: "medium" }}
+              width="100%"
+              height="130"
+              pad="small"
+              background="light-4"
+              round="small"
+            >
+              <Box direction="row" margin={{ bottom: "small" }}>
+                <Box>
+                  <Text size={"small"}>{"To"}</Text>
+                </Box>
+                <Box alignContent="end" width="100%">
+                  <Text
+                    size={"small"}
+                    width="100%"
+                    textAlign="end"
+                  >{`Balance: ${tokenBalance || "-"}`}</Text>
+                </Box>
+              </Box>
+              <Box direction="row" margin={{ bottom: "small" }}>
+                <Box margin={{ right: "small" }} width="100%">
+                  <TextInput
+                    width="small"
+                    type="number"
+                    placeholder="0.0"
+                    value={spendAmount * 100}
+                    onChange={(event) => setETHAmount(event.target.value / 100)}
+                  />
+                </Box>
+                <Box margin={{ right: "small" }}>
+                  <Image
+                    width="30"
+                    height="30"
+                    src={images.cityLogo}
+                    margin="auto"
+                  />
+                </Box>
+                <Box>
+                  <Text size="small" margin="auto">
+                    {constants.REWARD_TOKEN_SYMBOL}
+                  </Text>
+                </Box>
+              </Box>
+            </Box>
           </CardBody>
-          <CardFooter
-            pad={{ horizontal: "small" }}
-            background="light-4"
-            pad="small"
-          >
+          <CardFooter background="light-4" pad="small">
             <Button
               fill={true}
               label={"SWAP"}
               primary
               hoverIndicator
-              onClick={() => {
-                //
+              onClick={async () => {
+                // set Loading
+                await api.buyPresale(spendAmount)
+                refreshBalances()
               }}
-              // disabled={!hasEnoughCredits}
+              disabled={spendAmount > ethBalance}
             />
           </CardFooter>
         </Card>

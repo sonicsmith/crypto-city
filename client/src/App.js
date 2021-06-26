@@ -5,10 +5,8 @@ import {
   useWeb3React,
 } from "@web3-react/core"
 import { Web3Provider } from "@ethersproject/providers"
-import { Contract } from "@ethersproject/contracts"
+// import { Contract } from "@ethersproject/contracts"
 import { InjectedConnector } from "@web3-react/injected-connector"
-
-// const FLASH_CONTRACT_ADDRESS = "0xBE41FD0066386acF3CBd02262E3cD17e760C4AEe"
 
 import { Box } from "grommet"
 import Topbar from "./Components/Topbar"
@@ -26,14 +24,14 @@ export const injected = new InjectedConnector({
 
 const Web3ProviderNetwork = createWeb3ReactRoot("NETWORK")
 
-let provider, contract
+let provider //, contract
 
 const getLibrary = (_provider) => {
   const library = new Web3Provider(_provider)
   library.pollingInterval = 15000
   provider = library
   api.setProvider(provider)
-  // contract = new Contract(FLASH_CONTRACT_ADDRESS, abi, library.getSigner())
+  // contract = new Contract(MAIN_CONTRACT_ADDRESS, abi, library.getSigner())
   return library
 }
 
@@ -48,44 +46,60 @@ const pages = {
 const defaultCityState = {
   selectedTile: -1,
   showModal: false,
-  apr: 0,
   cityMap: null,
 }
 
 function App() {
   // Web3
-  const { chainId, account, activate, active } = useWeb3React()
+  const {
+    // chainId,
+    account,
+    activate,
+    active,
+  } = useWeb3React()
 
   // Main State
   const [sideBarOpen, setSideBarOpen] = useState(false)
-  const [page, setPage] = useState(pages.exchange)
-  const [credits, setCredits] = useState(0)
+  const [page, setPage] = useState(pages.home)
+  const [ethBalance, setEthBalance] = useState()
+  const [tokenBalance, setTokenBalance] = useState()
 
   // City State
   const [cityState, setCityState] = useState(defaultCityState)
 
+  const refreshBalances = () => {
+    // Set null to force loading signs
+    setEthBalance()
+    setTokenBalance()
+    api.getEthBalance().then(setEthBalance)
+    api.getTokenBalance().then(setTokenBalance)
+  }
+
+  const refreshCityMap = () => {
+    // Set null to force loading signs
+    setCityState({ ...cityState, cityMap: null })
+    api.getMap().then((cityMap) => setCityState({ ...cityState, cityMap }))
+  }
+
+  // On wallet connect
   useEffect(() => {
-    const getData = async () => {
-      const cityMap = await api.getMap()
-      const apr = await api.getAPR()
-      setCityState({ ...cityState, apr, cityMap })
-    }
     if (active) {
       api.setAccount(account)
-      api.getCreditBalance().then(setCredits)
-      getData()
+      refreshCityMap()
+      refreshBalances()
     }
-  }, [active])
+  }, [active, account])
 
+  // If side bar opens, hide city menu
   useEffect(() => {
-    setCityState({ ...cityState, selectedTile: -1 })
+    setCityState((existingState) => ({ ...existingState, selectedTile: -1 }))
   }, [sideBarOpen])
 
   return (
     <Box fill>
       <Topbar
         isWeb3Active={active}
-        credits={credits}
+        tokenBalance={tokenBalance}
         onClickBalance={() => {
           if (!active) {
             activate(injected)
@@ -106,14 +120,20 @@ function App() {
       )}
       {page === pages.home && (
         <City
-          credits={credits}
+          tokenBalance={tokenBalance}
           cityState={cityState}
           setCityState={setCityState}
         />
       )}
       {page === pages.games && <Games />}
       {page === pages.nfts && <Nfts />}
-      {page === pages.exchange && <Exchange />}
+      {page === pages.exchange && (
+        <Exchange
+          refreshBalances={refreshBalances}
+          ethBalance={ethBalance}
+          tokenBalance={tokenBalance}
+        />
+      )}
       {page === pages.wiki && <Wiki />}
     </Box>
   )

@@ -12,23 +12,14 @@ const main = {
   REWARD_TOKEN_SYMBOL: "CITY",
   REWARD_TOKEN_DECIMALS: 18,
   REWARD_TOKEN_ADDRESS: "0xc9849e6fdb743d08faee3e34dd2d1bc69ea11a51",
+  MAIN_CONTRACT_ADDRESS: "0xBE41FD0066386acF3CBd02262E3cD17e760C4AEe",
   MAX_UPGRADE: 6,
   SKY_COLOR: "#80DDFF",
 }
 
 // cost is in reward token = 100 = 1 BNB
-const stakeCost = 200
-// const cost = {
-//   tile: {
-//     1: 200,
-//     2: 400,
-//     3: 600,
-//     4: 800,
-//     5: 1000,
-//     6: 1200,
-//     7: 1400,
-//   },
-// }
+const stakeCost = 10
+// MAX for one plot is stakeCost * 6 (60)
 
 const text = {
   tileTypeNames: {

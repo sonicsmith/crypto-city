@@ -5,7 +5,7 @@ import ConfirmationModal from "../ConfirmationModal"
 import tileCoords from "./tileCoords"
 import images from "./../../Images"
 import api from "./../../API"
-import { getDailyReward, formatMoney } from "./../../Utils/misc"
+import { formatMoney } from "./../../Utils/misc"
 import constants from "./../../Utils/constants"
 const {
   GAP,
@@ -27,6 +27,7 @@ const Tile = ({ x, y, image, isSelected }) => {
   }
   return (
     <img
+      alt="tile"
       style={{
         position: "absolute",
         top,
@@ -107,36 +108,26 @@ const TileInfoPanel = ({
   tileType,
   selectedTileType,
   setSelectedTile,
-  apr,
   setCurrentAction,
   setShowModal,
-  credits,
+  tokenBalance,
 }) => {
   const { tileTypeNames } = constants.text
   const itemName = tileTypeNames[tileType]
   const nextItemName = tileTypeNames[tileType + 1]
-  const amount = constants.stakeCost * tileType
   const nextAmount = constants.stakeCost * (tileType + 1)
-  const dailyEarnings = getDailyReward({ amount, apr })
-  const hasEnoughCredits = credits >= nextAmount
+  const hasEnoughTokenBalance = tokenBalance >= nextAmount
   const upgradeExists = tileType < constants.MAX_UPGRADE
 
   const body = []
 
-  if (tileType > 0) {
-    body.push(
-      `Daily Earnings: ${formatMoney(dailyEarnings)} ${
-        constants.REWARD_TOKEN_SYMBOL
-      }`
-    )
-  }
   if (upgradeExists) {
     body.push(
       `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
         constants.REWARD_TOKEN_SYMBOL
       } to increase your earnings.`
     )
-    if (!hasEnoughCredits) {
+    if (!hasEnoughTokenBalance) {
       body.push(`You need more ${constants.REWARD_TOKEN_NAME} to buy this.`)
     }
   } else {
@@ -160,7 +151,7 @@ const TileInfoPanel = ({
                   setCurrentAction(actions.buy)
                   setShowModal(true)
                 }}
-                disabled={!hasEnoughCredits}
+                disabled={!hasEnoughTokenBalance}
               />
             )}
             {selectedTileType > 0 && (
@@ -186,7 +177,7 @@ const actions = {
   sell: "sell",
 }
 
-export default ({ credits, cityState, setCityState }) => {
+export default ({ tokenBalance, cityState, setCityState }) => {
   //
   const [selectedTile, setSelectedTile] = [
     cityState.selectedTile,
@@ -228,19 +219,16 @@ export default ({ credits, cityState, setCityState }) => {
     }
   }, [currentAction, selectedTileType])
 
-  const { apr } = cityState
-
   return (
     <Box alignContent="center" fill>
       {showInfoPanel && (
         <TileInfoPanel
-          apr={apr}
           tileType={selectedTileType}
           selectedTileType={selectedTileType}
           setSelectedTile={setSelectedTile}
           setCurrentAction={setCurrentAction}
           setShowModal={setShowModal}
-          credits={credits}
+          tokenBalance={tokenBalance}
         />
       )}
       <Box alignSelf="center" style={{ position: "relative" }}>

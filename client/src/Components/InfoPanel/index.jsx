@@ -31,11 +31,7 @@ export default ({ header, body, footer, onClose }) => {
           ))}
         {isBodyComponent && body}
       </CardBody>
-      <CardFooter
-        pad={{ horizontal: "small" }}
-        background="light-4"
-        pad="small"
-      >
+      <CardFooter background="light-4" pad="small">
         {footer}
       </CardFooter>
     </Card>

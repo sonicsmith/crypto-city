@@ -5,13 +5,13 @@ import { formatMoney } from "./../../Utils/misc"
 const { REWARD_TOKEN_SYMBOL } = constants
 
 export default ({
-  credits,
+  tokenBalance,
   sideBarOpen,
   setSideBarOpen,
   onClickBalance,
   isWeb3Active,
 }) => {
-  const balance = formatMoney(credits)
+  const balance = formatMoney(tokenBalance)
   return (
     <Box
       elevation="medium"
