@@ -55,7 +55,7 @@ export default ({ setPage, setSideBarOpen }) => {
             setSideBarOpen={setSideBarOpen}
           />
           <SidebarNav
-            label={`BUY ${constants.REWARD_TOKEN_SYMBOL}`}
+            label={`EXCHANGE`}
             page={pages.exchange}
             setPage={setPage}
             setSideBarOpen={setSideBarOpen}

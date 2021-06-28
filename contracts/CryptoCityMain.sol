@@ -26,10 +26,6 @@ contract CryptoCityMain is REFLECT {
         map = cityMaps[cityAddress];
     }
 
-    function getStakedAmount(address cityAddress) public returns (uint) {
-        return balanceOf(cityAddress);
-    }
-
     function setPresale(uint256 amount) public onlyOwner() {
         // Take CITY
         uint256 allowance = cryptoCityToken.allowance(msg.sender, address(this));
@@ -47,9 +43,9 @@ contract CryptoCityMain is REFLECT {
         cryptoCityToken.transfer(msg.sender, cityAmount);
     }
 
-    function claimPresaleEarnings() public onlyOwner() {
+    function claimPresaleEarnings() public payable onlyOwner() {
         address payable sender = payable(address(msg.sender));
-        sender.transfer(sender.balance);
+        sender.transfer(address(this).balance);
     }
 
     function stake(uint256 amount, string memory newMap) public {

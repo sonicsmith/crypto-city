@@ -95,7 +95,7 @@ contract("CryptoCityMain", (accounts) => {
       )
     }
     // Check staked amount
-    const stakedAmount = await mainInstance.getStakedAmount.call(user1)
+    const stakedAmount = await mainInstance.balanceOf.call(user1)
     assert.equal(
       stakedAmount.toString(),
       "0",
@@ -114,7 +114,7 @@ contract("CryptoCityMain", (accounts) => {
     // Get results
     const map = await mainInstance.getMap.call(user1)
     assert.equal(map, "theMap", "The map was not correct")
-    const stakedAmount = await mainInstance.getStakedAmount.call(user1)
+    const stakedAmount = await mainInstance.balanceOf.call(user1)
     assert.equal(
       stakedAmount.toString(),
       "100000000000000000000",
@@ -133,8 +133,8 @@ contract("CryptoCityMain", (accounts) => {
       from: user2,
     })
     // Get results
-    const stakedAmount1 = await mainInstance.getStakedAmount.call(user1)
-    const stakedAmount2 = await mainInstance.getStakedAmount.call(user2)
+    const stakedAmount1 = await mainInstance.balanceOf.call(user1)
+    const stakedAmount2 = await mainInstance.balanceOf.call(user2)
     assert.equal(
       stakedAmount1.toString(),
       "101010101010101010101",
@@ -156,9 +156,9 @@ contract("CryptoCityMain", (accounts) => {
       from: user3,
     })
     // Get results
-    const stakedAmount1 = await mainInstance.getStakedAmount.call(user1)
-    const stakedAmount2 = await mainInstance.getStakedAmount.call(user2)
-    const stakedAmount3 = await mainInstance.getStakedAmount.call(user3)
+    const stakedAmount1 = await mainInstance.balanceOf.call(user1)
+    const stakedAmount2 = await mainInstance.balanceOf.call(user2)
+    const stakedAmount3 = await mainInstance.balanceOf.call(user3)
     assert.equal(
       stakedAmount1.toString(),
       "101688021151108399430",
@@ -198,9 +198,9 @@ contract("CryptoCityMain", (accounts) => {
       from: user2,
     })
     // Get results
-    const stakedAmount1 = await mainInstance.getStakedAmount.call(user1)
-    const stakedAmount2 = await mainInstance.getStakedAmount.call(user2)
-    const stakedAmount3 = await mainInstance.getStakedAmount.call(user3)
+    const stakedAmount1 = await mainInstance.balanceOf.call(user1)
+    const stakedAmount2 = await mainInstance.balanceOf.call(user2)
+    const stakedAmount3 = await mainInstance.balanceOf.call(user3)
     assert.equal(
       stakedAmount1.toString(),
       "102699636832035069122",
@@ -234,9 +234,9 @@ contract("CryptoCityMain", (accounts) => {
       from: user2,
     })
     // Get results
-    const stakedAmount1 = await mainInstance.getStakedAmount.call(user1)
-    const stakedAmount2 = await mainInstance.getStakedAmount.call(user2)
-    const stakedAmount3 = await mainInstance.getStakedAmount.call(user3)
+    const stakedAmount1 = await mainInstance.balanceOf.call(user1)
+    const stakedAmount2 = await mainInstance.balanceOf.call(user2)
+    const stakedAmount3 = await mainInstance.balanceOf.call(user3)
     assert.equal(
       stakedAmount1.toString(),
       "102699636832045220376",
@@ -253,6 +253,23 @@ contract("CryptoCityMain", (accounts) => {
       "The third amount was not correct"
     )
   })
+
+  it("should allow the owner to claim all presale earnings", async () => {
+    const contractBalance = await web3.eth.getBalance(mainInstance.address)
+    const startBalance = await web3.eth.getBalance(owner)
+    await mainInstance.claimPresaleEarnings()
+    const afterBalance = await web3.eth.getBalance(owner)
+    const actualBalance = toBN(afterBalance).sub(toBN(startBalance))
+    const expectedAmount = toBN(contractBalance)
+    const difference = expectedAmount.sub(actualBalance)
+    // const gasEstimate = web3.utils.toWei("100", "gwei")
+    assert.equal(
+      difference.toString(),
+      "59462000000000",
+      "The contract did not return presale earnings"
+    )
+  })
+
   /*
   it("should continue staking and correctly allocate taxes", async () => {
     const numLoops = 8
@@ -262,7 +279,7 @@ contract("CryptoCityMain", (accounts) => {
       const startBalance = [null, null, null, null, null]
       // CHECK USER START AMOUNT
       for (let ii = 1; ii <= numUsers; ii++) {
-        const stakedAmount = await mainInstance.getStakedAmount.call(
+        const stakedAmount = await mainInstance.balanceOf.call(
           accounts[ii]
         )
         startBalance[ii] = stakedAmount
@@ -276,11 +293,11 @@ contract("CryptoCityMain", (accounts) => {
       })
 
       // Check taxed amount
-      const user4Amount = await mainInstance.getStakedAmount.call(user4)
+      const user4Amount = await mainInstance.balanceOf.call(user4)
       const taxedAmount = amount - (user4Amount - startBalance[4])
       // CHECK EXISTING USERS AMOUNTS
       for (let ii = 1; ii < numUsers; ii++) {
-        const stakedAmount = await mainInstance.getStakedAmount.call(
+        const stakedAmount = await mainInstance.balanceOf.call(
           accounts[ii]
         )
         const difference = stakedAmount - startBalance[ii] 

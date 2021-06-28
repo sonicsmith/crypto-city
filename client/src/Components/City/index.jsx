@@ -125,7 +125,7 @@ const TileInfoPanel = ({
     body.push(
       `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
         constants.REWARD_TOKEN_SYMBOL
-      } to increase your earnings.`
+      } to secure an ongoing percentage of future sales.`
     )
     if (!hasEnoughTokenBalance) {
       body.push(`You need more ${constants.REWARD_TOKEN_NAME} to buy this.`)
