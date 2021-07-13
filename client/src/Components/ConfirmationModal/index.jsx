@@ -15,7 +15,7 @@ export default ({ header, body, onConfirm, setShowModal }) => {
             hoverIndicator
             onClick={() => {
               onConfirm()
-              setShowModal(false)
+              // setShowModal(false)
             }}
           />
           <Button

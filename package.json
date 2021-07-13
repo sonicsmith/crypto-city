@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cd client && npm start",
     "test": "truffle test",
-    "compile": "truffle compile"
+    "compile": "truffle compile",
+    "remixd": "remixd -s contracts --remix-ide https://remix.ethereum.org"
   }
 }

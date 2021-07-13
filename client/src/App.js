@@ -5,9 +5,8 @@ import {
   useWeb3React,
 } from "@web3-react/core"
 import { Web3Provider } from "@ethersproject/providers"
-// import { Contract } from "@ethersproject/contracts"
+import { Contract } from "@ethersproject/contracts"
 import { InjectedConnector } from "@web3-react/injected-connector"
-
 import { Box } from "grommet"
 import Topbar from "./Components/Topbar"
 import Sidebar from "./Components/Sidebar"
@@ -17,21 +16,32 @@ import Games from "./Components/Games"
 import Nfts from "./Components/Nfts"
 import Exchange from "./Components/Exchange"
 import Wiki from "./Components/Wiki"
+import constants from "./Utils/constants"
+import cryptoCityMain from "./contracts/CryptoCityMain.json"
+import cryptoCityToken from "./contracts/CryptoCityToken.json"
+import ErrorModal from "./Components/ErrorModal"
+import Loading from "./Components/Loading"
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [56],
+  supportedChainIds: [constants.CHAIN_ID],
 })
 
 const Web3ProviderNetwork = createWeb3ReactRoot("NETWORK")
 
-let provider //, contract
-
-const getLibrary = (_provider) => {
-  const library = new Web3Provider(_provider)
+const getLibrary = (provider) => {
+  const library = new Web3Provider(provider)
   library.pollingInterval = 15000
-  provider = library
-  api.setProvider(provider)
-  // contract = new Contract(MAIN_CONTRACT_ADDRESS, abi, library.getSigner())
+  const mainContract = new Contract(
+    constants.MAIN_CONTRACT_ADDRESS,
+    cryptoCityMain.abi,
+    library.getSigner()
+  )
+  const tokenContract = new Contract(
+    constants.TOKEN_CONTRACT_ADDRESS,
+    cryptoCityToken.abi,
+    library.getSigner()
+  )
+  api.initWeb3({ library, mainContract, tokenContract })
   return library
 }
 
@@ -51,24 +61,22 @@ const defaultCityState = {
 
 function App() {
   // Web3
-  const {
-    // chainId,
-    account,
-    activate,
-    active,
-  } = useWeb3React()
+  const { chainId, account, activate, active } = useWeb3React()
 
   // Main State
   const [sideBarOpen, setSideBarOpen] = useState(false)
   const [page, setPage] = useState(pages.home)
   const [ethBalance, setEthBalance] = useState()
   const [tokenBalance, setTokenBalance] = useState()
+  const [error, setError] = useState()
+  const [loadingMessage, setLoadingMessage] = useState()
 
   // City State
   const [cityState, setCityState] = useState(defaultCityState)
 
   const refreshBalances = () => {
     // Set null to force loading signs
+    console.log("refreshBalances()")
     setEthBalance()
     setTokenBalance()
     api.getEthBalance().then(setEthBalance)
@@ -77,30 +85,48 @@ function App() {
 
   const refreshCityMap = () => {
     // Set null to force loading signs
+    console.log("refreshCityMap()")
     setCityState({ ...cityState, cityMap: null })
     api.getMap().then((cityMap) => setCityState({ ...cityState, cityMap }))
   }
 
   // On wallet connect
   useEffect(() => {
+    console.log("Wallet state change", { active, account, chainId })
     if (active) {
-      api.setAccount(account)
-      refreshCityMap()
-      refreshBalances()
+      if (chainId !== constants.CHAIN_ID) {
+        alert("Please set network to " + constants.NETWORK_NAME)
+      } else {
+        api.setAccount(account)
+        refreshCityMap()
+        refreshBalances()
+      }
     }
-  }, [active, account])
+  }, [active, account, chainId])
 
   // If side bar opens, hide city menu
   useEffect(() => {
-    setCityState((existingState) => ({ ...existingState, selectedTile: -1 }))
+    if (sideBarOpen) {
+      setCityState((existingState) => ({ ...existingState, selectedTile: -1 }))
+    }
   }, [sideBarOpen])
+
+  // If error, hide loading, hide city menu
+  useEffect(() => {
+    if (error) {
+      setLoadingMessage()
+      setCityState((existingState) => ({ ...existingState, selectedTile: -1 }))
+    }
+  }, [error])
 
   return (
     <Box fill>
+      {loadingMessage && <Loading loadingMessage={loadingMessage} />}
       <Topbar
         isWeb3Active={active}
         tokenBalance={tokenBalance}
         onClickBalance={() => {
+          console.log("onClickBalance", active)
           if (!active) {
             activate(injected)
           } else {
@@ -118,11 +144,18 @@ function App() {
           setPage={setPage}
         />
       )}
+
+      {error && (
+        <ErrorModal header={"Error"} body={error} setShowModal={setError} />
+      )}
+
       {page === pages.home && (
         <City
           tokenBalance={tokenBalance}
           cityState={cityState}
           setCityState={setCityState}
+          setError={setError}
+          setLoadingMessage={setLoadingMessage}
         />
       )}
       {page === pages.games && <Games />}

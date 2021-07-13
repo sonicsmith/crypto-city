@@ -20,7 +20,7 @@ const {
 const Tile = ({ x, y, image, isSelected }) => {
   const left = X_OFFSET + x * (TILE_WIDTH + GAP)
   const top = Y_OFFSET + y * (TILE_HEIGHT + GAP)
-  const zIndex = y + 10
+  const zIndex = y + 2 // 0 -> 4
   const selectedStyle = {}
   if (isSelected) {
     selectedStyle.filter = "contrast(200%)"
@@ -51,7 +51,7 @@ const TouchTile = ({ id, x, y, setSelectedTile }) => {
         height: TILE_HEIGHT,
         top,
         left,
-        zIndex: 30,
+        zIndex: 5,
         cursor: "pointer",
       }}
       onClick={() => {
@@ -112,21 +112,29 @@ const TileInfoPanel = ({
   setShowModal,
   tokenBalance,
 }) => {
-  const { tileTypeNames } = constants.text
-  const itemName = tileTypeNames[tileType]
-  const nextItemName = tileTypeNames[tileType + 1]
-  const nextAmount = constants.stakeCost * (tileType + 1)
+  const { TILE_TYPE_NAMES } = constants.TEXT
+  const itemName = TILE_TYPE_NAMES[tileType]
+  const nextItemName = TILE_TYPE_NAMES[tileType + 1]
+  const nextAmount = constants.STAKE_COST * (tileType + 1)
   const hasEnoughTokenBalance = tokenBalance >= nextAmount
   const upgradeExists = tileType < constants.MAX_UPGRADE
 
   const body = []
 
   if (upgradeExists) {
-    body.push(
-      `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
-        constants.REWARD_TOKEN_SYMBOL
-      } to secure an ongoing percentage of future sales.`
-    )
+    if (tileType === 0) {
+      body.push(
+        `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
+          constants.REWARD_TOKEN_SYMBOL
+        } to secure an ongoing percentage of future sales.`
+      )
+    } else {
+      body.push(
+        `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
+          constants.REWARD_TOKEN_SYMBOL
+        } to increase your ongoing percentage of future sales.`
+      )
+    }
     if (!hasEnoughTokenBalance) {
       body.push(`You need more ${constants.REWARD_TOKEN_NAME} to buy this.`)
     }
@@ -177,7 +185,13 @@ const actions = {
   sell: "sell",
 }
 
-export default ({ tokenBalance, cityState, setCityState }) => {
+export default ({
+  tokenBalance,
+  cityState,
+  setCityState,
+  setError,
+  setLoadingMessage,
+}) => {
   //
   const [selectedTile, setSelectedTile] = [
     cityState.selectedTile,
@@ -198,19 +212,21 @@ export default ({ tokenBalance, cityState, setCityState }) => {
 
   useEffect(() => {
     if (selectedTileType >= 0) {
-      const { tileTypeNames } = constants.text
+      const { TILE_TYPE_NAMES } = constants.TEXT
       if (currentAction === actions.buy) {
-        const nextItemName = tileTypeNames[selectedTileType + 1]
+        const nextItemName = TILE_TYPE_NAMES[selectedTileType + 1]
         const nextAmount = formatMoney(
-          constants.stakeCost * (selectedTileType + 1)
+          constants.STAKE_COST * (selectedTileType + 1)
         )
-        setActionQuestion(
-          `Buy ${nextItemName} for ${nextAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
-        )
+        const buyQuestion = [
+          `Buy ${nextItemName} for ${nextAmount} ${constants.REWARD_TOKEN_SYMBOL}?`,
+          "Please note that to perform this action you will be required to perform 2 transations.",
+        ]
+        setActionQuestion(buyQuestion)
       } else {
-        const currentItemName = tileTypeNames[selectedTileType]
+        const currentItemName = TILE_TYPE_NAMES[selectedTileType]
         const currentAmount = formatMoney(
-          constants.stakeCost * selectedTileType
+          constants.STAKE_COST * selectedTileType
         )
         setActionQuestion(
           `Sell ${currentItemName} for ${currentAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
@@ -251,12 +267,29 @@ export default ({ tokenBalance, cityState, setCityState }) => {
             body={actionQuestion}
             setShowModal={setShowModal}
             onConfirm={async () => {
+              let response
+              const lastSelection = selectedTile
+              setCityState({ ...cityState, selectedTile: -1, showModal: false })
+              return
               if (currentAction === actions.buy) {
-                api.upgradeTile(selectedTile)
+                // Now wait for
+                response = await api.checkAndUpgradeTile({
+                  selectedTile: lastSelection,
+                  currentMap: cityMap,
+                  setMessage: setLoadingMessage,
+                })
               } else {
-                api.sellTile(selectedTile)
+                response = await api.sellTile({
+                  selectedTile: lastSelection,
+                  currentMap: cityMap,
+                })
               }
-              setSelectedTile(-1)
+              if (response.error) {
+                setError(response.error)
+              } else {
+                console.log("About to update")
+                setCityState({ ...cityState, cityMap: response.result })
+              }
             }}
           />
         )}

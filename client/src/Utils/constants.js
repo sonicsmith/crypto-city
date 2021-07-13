@@ -6,23 +6,24 @@ const main = {
   Y_OFFSET: 250,
   TOUCH_OFFSET_X: 30,
   TOUCH_OFFSET_Y: 150,
+  CHAIN_ID: 56,
+  NETWORK_NAME: "Binance Smart Chain",
   STAKE_TOKEN_NAME: "Binance Coin",
   REWARD_TOKEN_NAME: "Crypto City Token",
   STAKE_TOKEN_SYMBOL: "BNB",
   REWARD_TOKEN_SYMBOL: "CITY",
   REWARD_TOKEN_DECIMALS: 18,
-  REWARD_TOKEN_ADDRESS: "0xc9849e6fdb743d08faee3e34dd2d1bc69ea11a51",
-  MAIN_CONTRACT_ADDRESS: "0xBE41FD0066386acF3CBd02262E3cD17e760C4AEe",
-  MAX_UPGRADE: 6,
+  TOKEN_CONTRACT_ADDRESS: "0x7dBeF2188E8BAD28ee76B0781062a00aA32f1804",
+  MAIN_CONTRACT_ADDRESS: "0xBF6bE696A6e17d924F3Aa8721c93814C2bb3B25A",
   SKY_COLOR: "#80DDFF",
 }
 
 // cost is in reward token = 100 = 1 BNB
-const stakeCost = 10
-// MAX for one plot is stakeCost * 6 (60)
+const STAKE_COST = 10
+// MAX for one plot is STAKE_COST * 6 (60)
 
-const text = {
-  tileTypeNames: {
+const TEXT = {
+  TILE_TYPE_NAMES: {
     0: "Vacant Lot",
     1: "Section of Land",
     2: "House",
@@ -33,4 +34,18 @@ const text = {
   },
 }
 
-export default { ...main, text, stakeCost }
+const MAX_UPGRADE = Object.keys(TEXT.TILE_TYPE_NAMES).length - 1
+
+const CHAIN_ID = 97
+// {
+//   TEST: 97,
+//   MAIN: 56,
+// }
+
+export default {
+  ...main,
+  TEXT,
+  MAX_UPGRADE,
+  CHAIN_ID,
+  STAKE_COST,
+}
