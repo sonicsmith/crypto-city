@@ -6,10 +6,10 @@ let library, account, tokenContract, mainContract
 
 const POLLING_DELAY = 2000
 
-const getBlockChainError = (error) => {
-  console.error("ERROR:", error)
+const throwBlockChainError = (error) => {
+  console.log("Transaction error:", error)
   const message = (error.data && error.data.message) || error.message
-  return { error: message }
+  throw new Error(message)
 }
 
 const initWeb3 = (web3Connection) => {
@@ -47,17 +47,12 @@ const getMap = () => {
 
 const setApprovalForStake = async () => {
   console.log("setApprovalForStake()")
-  try {
-    const spender = constants.MAIN_CONTRACT_ADDRESS
-    const value = parseUnits(
-      String(constants.STAKE_COST),
-      constants.REWARD_TOKEN_DECIMALS
-    )
-    await tokenContract.approve(spender, value)
-    return { result: value }
-  } catch (error) {
-    return getBlockChainError(error)
-  }
+  const spender = constants.MAIN_CONTRACT_ADDRESS
+  const value = parseUnits(
+    String(constants.STAKE_COST),
+    constants.REWARD_TOKEN_DECIMALS
+  )
+  await tokenContract.approve(spender, value)
 }
 
 const checkAndUpgradeTile = async ({
@@ -109,9 +104,9 @@ const checkAndUpgradeTile = async ({
       await pause(POLLING_DELAY)
     }
     setMessage()
-    return { result: newMap }
+    return newMap
   } catch (error) {
-    return getBlockChainError(error)
+    throwBlockChainError(error)
   }
 }
 
@@ -138,10 +133,9 @@ const sellTile = async ({ selectedTile, currentMap }) => {
       // If changes haven't occured yet, keep waiting
       await pause(POLLING_DELAY)
     }
-
-    return { result: newMap }
+    return newMap
   } catch (error) {
-    return getBlockChainError(error)
+    throwBlockChainError(error)
   }
 }
 
@@ -181,5 +175,4 @@ export default {
   getTokenBalance,
   buyPresale,
   getTokenAllowance,
-  setApprovalForStake,
 }

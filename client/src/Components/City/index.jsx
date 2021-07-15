@@ -213,7 +213,7 @@ export default ({
         )
         const buyQuestion = [
           `Buy ${nextItemName} for ${nextAmount} ${constants.REWARD_TOKEN_SYMBOL}?`,
-          "Please note that to perform this action you will be required to perform 2 transations.",
+          "(You will first need to approve this token for transfer)",
         ]
         setActionQuestion(buyQuestion)
       } else {
@@ -261,35 +261,35 @@ export default ({
               setCityState({ ...cityState, showModal: false })
             }
             onConfirm={async () => {
-              let response
+              let updatedMap
               const lastSelection = selectedTile
               setCityState({ ...cityState, selectedTile: -1, showModal: false })
-              if (currentAction === actions.buy) {
-                // Now wait for
-                response = await api.checkAndUpgradeTile({
-                  selectedTile: lastSelection,
-                  currentMap: cityMap,
-                  setMessage: setLoadingMessage,
-                })
-              } else {
-                setLoadingMessage("Selling spot")
-                response = await api.sellTile({
-                  selectedTile: lastSelection,
-                  currentMap: cityMap,
-                })
-                setLoadingMessage()
-              }
-              console.log("Response", response)
-              if (response.error) {
-                setError(response.error)
-              } else {
-                console.log("Updating map")
+              try {
+                if (currentAction === actions.buy) {
+                  // Now wait for
+                  updatedMap = await api.checkAndUpgradeTile({
+                    selectedTile: lastSelection,
+                    currentMap: cityMap,
+                    setMessage: setLoadingMessage,
+                  })
+                } else {
+                  setLoadingMessage("Selling spot")
+                  updatedMap = await api.sellTile({
+                    selectedTile: lastSelection,
+                    currentMap: cityMap,
+                  })
+                  setLoadingMessage()
+                }
+                console.log("Updating map", updatedMap)
                 setCityState({
                   ...cityState,
-                  cityMap: response.result,
+                  cityMap: updatedMap,
                   selectedTile: -1,
                   showModal: false,
                 })
+              } catch (error) {
+                setLoadingMessage()
+                setError(error.message)
               }
             }}
           />
