@@ -1,6 +1,5 @@
 import { useContext } from "react"
 import { Box, Button, ResponsiveContext, Sidebar, Nav } from "grommet"
-import constants from "./../../Utils/constants"
 import * as Icons from "grommet-icons"
 
 const pages = {

@@ -21,6 +21,7 @@ import cryptoCityMain from "./contracts/CryptoCityMain.json"
 import cryptoCityToken from "./contracts/CryptoCityToken.json"
 import ErrorModal from "./Components/ErrorModal"
 import Loading from "./Components/Loading"
+import NotConnected from "./Components/NotConnected"
 
 export const injected = new InjectedConnector({
   supportedChainIds: [constants.CHAIN_ID],
@@ -74,20 +75,17 @@ function App() {
   // City State
   const [cityState, setCityState] = useState(defaultCityState)
 
-  const refreshBalances = () => {
-    // Set null to force loading signs
-    console.log("refreshBalances()")
+  const refreshAccount = async () => {
+    setLoadingMessage("Loading Account")
     setEthBalance()
     setTokenBalance()
-    api.getEthBalance().then(setEthBalance)
-    api.getTokenBalance().then(setTokenBalance)
-  }
-
-  const refreshCityMap = () => {
-    // Set null to force loading signs
-    console.log("refreshCityMap()")
-    setCityState({ ...cityState, cityMap: null })
-    api.getMap().then((cityMap) => setCityState({ ...cityState, cityMap }))
+    const ethBal = await api.getEthBalance()
+    setEthBalance(ethBal)
+    const tokenBal = await api.getTokenBalance()
+    setTokenBalance(tokenBal)
+    const cityMap = await api.getMap()
+    setCityState({ ...cityState, cityMap })
+    setLoadingMessage()
   }
 
   // On wallet connect
@@ -98,8 +96,7 @@ function App() {
         alert("Please set network to " + constants.NETWORK_NAME)
       } else {
         api.setAccount(account)
-        refreshCityMap()
-        refreshBalances()
+        refreshAccount()
       }
     }
   }, [active, account, chainId])
@@ -149,7 +146,8 @@ function App() {
         <ErrorModal header={"Error"} body={error} setShowModal={setError} />
       )}
 
-      {page === pages.home && (
+      {page === pages.home && !active && <NotConnected />}
+      {page === pages.home && active && (
         <City
           tokenBalance={tokenBalance}
           cityState={cityState}
@@ -162,7 +160,7 @@ function App() {
       {page === pages.nfts && <Nfts />}
       {page === pages.exchange && (
         <Exchange
-          refreshBalances={refreshBalances}
+          refreshBalances={refreshAccount}
           ethBalance={ethBalance}
           tokenBalance={tokenBalance}
         />

@@ -7,6 +7,7 @@ import images from "./../../Images"
 import api from "./../../API"
 import { formatMoney } from "./../../Utils/misc"
 import constants from "./../../Utils/constants"
+import Loading from "../Loading"
 const {
   GAP,
   TILE_WIDTH,
@@ -79,7 +80,7 @@ const TileGrid = ({ tileCoords, selectedTile, cityMap }) => {
   })
 }
 
-const TouchOverlay = ({ tileCoords, setSelectedTile, selectedTile }) => {
+const TouchOverlay = ({ tileCoords, cityState, setCityState }) => {
   return tileCoords.map((coords, index) => {
     const { x, y } = coords
     return (
@@ -89,10 +90,10 @@ const TouchOverlay = ({ tileCoords, setSelectedTile, selectedTile }) => {
         id={index}
         key={"touchArea" + index}
         setSelectedTile={(id) => {
-          if (id === selectedTile) {
-            setSelectedTile(-1)
+          if (id === cityState.selectedTile) {
+            setCityState({ ...cityState, selectedTile: -1 })
           } else {
-            setSelectedTile(id)
+            setCityState({ ...cityState, selectedTile: id })
           }
         }}
       />
@@ -105,24 +106,23 @@ const getTileImageForId = (id) => {
 }
 
 const TileInfoPanel = ({
-  tileType,
   selectedTileType,
-  setSelectedTile,
+  cityState,
+  setCityState,
   setCurrentAction,
-  setShowModal,
   tokenBalance,
 }) => {
   const { TILE_TYPE_NAMES } = constants.TEXT
-  const itemName = TILE_TYPE_NAMES[tileType]
-  const nextItemName = TILE_TYPE_NAMES[tileType + 1]
-  const nextAmount = constants.STAKE_COST * (tileType + 1)
+  const itemName = TILE_TYPE_NAMES[selectedTileType]
+  const nextItemName = TILE_TYPE_NAMES[selectedTileType + 1]
+  const nextAmount = constants.STAKE_COST * (selectedTileType + 1)
   const hasEnoughTokenBalance = tokenBalance >= nextAmount
-  const upgradeExists = tileType < constants.MAX_UPGRADE
+  const upgradeExists = selectedTileType < constants.MAX_UPGRADE
 
   const body = []
 
   if (upgradeExists) {
-    if (tileType === 0) {
+    if (selectedTileType === 0) {
       body.push(
         `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
           constants.REWARD_TOKEN_SYMBOL
@@ -145,7 +145,7 @@ const TileInfoPanel = ({
   return (
     <Box style={{ position: "absolute", top: 60, left: 10 }}>
       <InfoPanel
-        onClose={() => setSelectedTile(-1)}
+        onClose={() => setCityState({ ...cityState, selectedTile: -1 })}
         header={itemName}
         body={body}
         footer={
@@ -157,7 +157,7 @@ const TileInfoPanel = ({
                 hoverIndicator
                 onClick={() => {
                   setCurrentAction(actions.buy)
-                  setShowModal(true)
+                  setCityState({ ...cityState, showModal: true })
                 }}
                 disabled={!hasEnoughTokenBalance}
               />
@@ -169,7 +169,7 @@ const TileInfoPanel = ({
                 hoverIndicator
                 onClick={() => {
                   setCurrentAction(actions.sell)
-                  setShowModal(true)
+                  setCityState({ ...cityState, showModal: true })
                 }}
               />
             )}
@@ -192,22 +192,15 @@ export default ({
   setError,
   setLoadingMessage,
 }) => {
-  //
-  const [selectedTile, setSelectedTile] = [
-    cityState.selectedTile,
-    (selectedTile) => setCityState({ ...cityState, selectedTile }),
-  ]
-  const [showModal, setShowModal] = [
-    cityState.showModal,
-    (showModal) => setCityState({ ...cityState, showModal }),
-  ]
+  const { selectedTile, showModal } = cityState
 
-  //
   const [currentAction, setCurrentAction] = useState()
   const [actionQuestion, setActionQuestion] = useState()
 
   const showInfoPanel = selectedTile >= 0 && !showModal
-  const cityMap = cityState.cityMap || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+  const { cityMap } = cityState
+
   const selectedTileType = selectedTile >= 0 && cityMap[selectedTile]
 
   useEffect(() => {
@@ -239,19 +232,18 @@ export default ({
     <Box alignContent="center" fill>
       {showInfoPanel && (
         <TileInfoPanel
-          tileType={selectedTileType}
           selectedTileType={selectedTileType}
-          setSelectedTile={setSelectedTile}
+          cityState={cityState}
+          setCityState={setCityState}
           setCurrentAction={setCurrentAction}
-          setShowModal={setShowModal}
           tokenBalance={tokenBalance}
         />
       )}
       <Box alignSelf="center" style={{ position: "relative" }}>
         <TouchOverlay
           tileCoords={tileCoords}
-          selectedTile={selectedTile}
-          setSelectedTile={setSelectedTile}
+          cityState={cityState}
+          setCityState={setCityState}
         />
         {cityMap && (
           <TileGrid
@@ -265,12 +257,13 @@ export default ({
           <ConfirmationModal
             header={"Confirm"}
             body={actionQuestion}
-            setShowModal={setShowModal}
+            setShowModal={() =>
+              setCityState({ ...cityState, showModal: false })
+            }
             onConfirm={async () => {
               let response
               const lastSelection = selectedTile
               setCityState({ ...cityState, selectedTile: -1, showModal: false })
-              return
               if (currentAction === actions.buy) {
                 // Now wait for
                 response = await api.checkAndUpgradeTile({
@@ -279,16 +272,24 @@ export default ({
                   setMessage: setLoadingMessage,
                 })
               } else {
+                setLoadingMessage("Selling spot")
                 response = await api.sellTile({
                   selectedTile: lastSelection,
                   currentMap: cityMap,
                 })
+                setLoadingMessage()
               }
+              console.log("Response", response)
               if (response.error) {
                 setError(response.error)
               } else {
-                console.log("About to update")
-                setCityState({ ...cityState, cityMap: response.result })
+                console.log("Updating map")
+                setCityState({
+                  ...cityState,
+                  cityMap: response.result,
+                  selectedTile: -1,
+                  showModal: false,
+                })
               }
             }}
           />
