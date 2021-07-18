@@ -9,7 +9,10 @@ export default ({ loadingMessage }) => {
       <Box
         alignSelf="center"
         margin="auto"
-        background={{ color: "white", opacity: "medium" }}
+        background={{
+          color: "white",
+          opacity: "strong",
+        }}
       >
         <Text size="large" margin="medium">
           {loadingMessage}

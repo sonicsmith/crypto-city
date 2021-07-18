@@ -71,11 +71,11 @@ export default ({ setPage, setSideBarOpen }) => {
             setPage={setPage}
             setSideBarOpen={setSideBarOpen}
           />
-          <Button
-            primary
-            label={"WHITE PAPER"}
-            href={"https://thesonicsmith.gitbook.io/crypto-city/"}
-            hoverIndicator
+          <SidebarNav
+            label="WHITE PAPER"
+            page={pages.wiki}
+            setPage={setPage}
+            setSideBarOpen={setSideBarOpen}
           />
         </Nav>
       </Sidebar>
