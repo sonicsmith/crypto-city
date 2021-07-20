@@ -69,6 +69,7 @@ function App() {
   const [page, setPage] = useState(pages.home)
   const [ethBalance, setEthBalance] = useState()
   const [tokenBalance, setTokenBalance] = useState()
+  const [stakedTokenBalance, setStakedTokenBalance] = useState()
   const [error, setError] = useState()
   const [loadingMessage, setLoadingMessage] = useState()
 
@@ -85,6 +86,8 @@ function App() {
     setTokenBalance(tokenBal)
     const cityMap = await api.getMap()
     setCityState({ ...cityState, cityMap })
+    const stakedTokenBal = await api.getStakedBalance()
+    setStakedTokenBalance(stakedTokenBal)
     setLoadingMessage()
   }
 
@@ -150,6 +153,7 @@ function App() {
       {page === pages.home && active && (
         <City
           tokenBalance={tokenBalance}
+          stakedTokenBalance={stakedTokenBalance}
           cityState={cityState}
           setCityState={setCityState}
           setError={setError}

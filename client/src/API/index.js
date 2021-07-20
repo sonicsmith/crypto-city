@@ -110,16 +110,13 @@ const checkAndUpgradeTile = async ({
   }
 }
 
-const sellTile = async ({ selectedTile, currentMap }) => {
+const sellTile = async ({ selectedTile, currentMap, amount }) => {
   console.log({ selectedTile, currentMap })
   const newMap = [...currentMap]
-  newMap[selectedTile] = newMap[selectedTile] - 1
+  newMap[selectedTile] = 0
   const newMapString = newMap.join("")
   console.log("sellTile(), newMap:", newMapString)
-  const value = parseUnits(
-    String(constants.STAKE_COST),
-    constants.REWARD_TOKEN_DECIMALS
-  )
+  const value = parseUnits(amount.toString(), constants.REWARD_TOKEN_DECIMALS)
   try {
     await mainContract.withdrawl(value, newMapString, {
       from: account,
@@ -143,6 +140,14 @@ const getTokenBalance = () => {
   console.log("getTokenBalance")
   return tokenContract.balanceOf(account).then((amount) => {
     console.log("Got CITY balance for", account, amount)
+    return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
+  })
+}
+
+const getStakedBalance = () => {
+  console.log("getStakedBalance")
+  return mainContract.balanceOf(account).then((amount) => {
+    console.log("Got sCITY balance for", account, amount)
     return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
   })
 }
@@ -173,6 +178,7 @@ export default {
   sellTile,
   getEthBalance,
   getTokenBalance,
+  getStakedBalance,
   buyPresale,
   getTokenAllowance,
 }

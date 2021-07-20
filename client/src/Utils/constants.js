@@ -25,7 +25,7 @@ const STAKE_COST = 10
 const TEXT = {
   TILE_TYPE_NAMES: {
     0: "Vacant Lot",
-    1: "Section of Land",
+    1: "Plot of Land",
     2: "House",
     3: "Block of flats",
     4: "Tower of flats",

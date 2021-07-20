@@ -111,6 +111,7 @@ const TileInfoPanel = ({
   setCityState,
   setCurrentAction,
   tokenBalance,
+  investmentUnitPrice,
 }) => {
   const { TILE_TYPE_NAMES } = constants.TEXT
   const itemName = TILE_TYPE_NAMES[selectedTileType]
@@ -124,13 +125,13 @@ const TileInfoPanel = ({
   if (upgradeExists) {
     if (selectedTileType === 0) {
       body.push(
-        `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
+        `• Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
           constants.REWARD_TOKEN_SYMBOL
         } to secure an ongoing percentage of future sales.`
       )
     } else {
       body.push(
-        `Buy a ${nextItemName} for ${formatMoney(nextAmount)} ${
+        `• Upgrade to a ${nextItemName} for ${formatMoney(nextAmount)} ${
           constants.REWARD_TOKEN_SYMBOL
         } to increase your ongoing percentage of future sales.`
       )
@@ -140,6 +141,14 @@ const TileInfoPanel = ({
     }
   } else {
     body.push("This land has been upgraded to the maximum value!")
+  }
+
+  if (selectedTileType > 0) {
+    body.push(
+      `• Sell all on this plot for ${
+        investmentUnitPrice * selectedTileType
+      } CITY`
+    )
   }
 
   return (
@@ -187,6 +196,7 @@ const actions = {
 
 export default ({
   tokenBalance,
+  stakedTokenBalance,
   cityState,
   setCityState,
   setError,
@@ -203,6 +213,13 @@ export default ({
 
   const selectedTileType = selectedTile >= 0 && cityMap[selectedTile]
 
+  const numPurchasedUpgrades = cityMap
+    ? cityMap.reduce((prev, curr) => {
+        return prev + curr
+      }, 0)
+    : 1
+  const investmentUnitPrice = stakedTokenBalance / numPurchasedUpgrades
+
   useEffect(() => {
     if (selectedTileType >= 0) {
       const { TILE_TYPE_NAMES } = constants.TEXT
@@ -217,12 +234,11 @@ export default ({
         ]
         setActionQuestion(buyQuestion)
       } else {
-        const currentItemName = TILE_TYPE_NAMES[selectedTileType]
         const currentAmount = formatMoney(
-          constants.STAKE_COST * selectedTileType
+          investmentUnitPrice * selectedTileType
         )
         setActionQuestion(
-          `Sell ${currentItemName} for ${currentAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
+          `Sell all on this plot for ${currentAmount} ${constants.REWARD_TOKEN_SYMBOL}?`
         )
       }
     }
@@ -237,6 +253,7 @@ export default ({
           setCityState={setCityState}
           setCurrentAction={setCurrentAction}
           tokenBalance={tokenBalance}
+          investmentUnitPrice={investmentUnitPrice}
         />
       )}
       <Box alignSelf="center" style={{ position: "relative" }}>
@@ -275,6 +292,7 @@ export default ({
                 } else {
                   setLoadingMessage("Selling spot")
                   updatedMap = await api.sellTile({
+                    amount: investmentUnitPrice * selectedTileType,
                     selectedTile: lastSelection,
                     currentMap: cityMap,
                   })
