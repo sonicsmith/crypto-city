@@ -1,11 +1,13 @@
 const CryptoCityToken = artifacts.require("CryptoCityToken")
+const { toBN } = web3.utils
+const totalAmountTokens = toBN(10).mul(toBN(10).pow(toBN(30)))
+const initialSupply = toBN("10000000000000000000000000000000")
 
 contract("CryptoCityToken", async (accounts) => {
   it("should put the correct amount of CryptoCityToken in the first account", async () => {
     const instance = await CryptoCityToken.deployed()
     const balance = await instance.balanceOf.call(accounts[0])
-    const initialSupply = 10 * Math.pow(10, 12)
-    assert.equal(balance.valueOf(), initialSupply, "Incorrect Intial Supply")
+    assert.equal(balance.toString(), initialSupply, "Incorrect Intial Supply")
   })
 
   it("should send coin correctly", async () => {
