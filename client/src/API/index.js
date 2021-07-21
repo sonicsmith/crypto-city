@@ -138,25 +138,28 @@ const sellTile = async ({ selectedTile, currentMap, amount }) => {
 
 const getTokenBalance = () => {
   console.log("getTokenBalance")
-  return tokenContract.balanceOf(account).then((amount) => {
-    console.log("Got CITY balance for", account, amount)
-    return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
+  return tokenContract.balanceOf(account).then((bigValue) => {
+    const amount = formatUnits(bigValue, constants.REWARD_TOKEN_DECIMALS)
+    console.log("Got CITY balance:", amount)
+    return amount
   })
 }
 
 const getStakedBalance = () => {
   console.log("getStakedBalance")
-  return mainContract.balanceOf(account).then((amount) => {
-    console.log("Got sCITY balance for", account, amount)
-    return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
+  return mainContract.balanceOf(account).then((bigValue) => {
+    const amount = formatUnits(bigValue, constants.REWARD_TOKEN_DECIMALS)
+    console.log("Got sCITY balance:", amount)
+    return amount
   })
 }
 
 const getEthBalance = () => {
   console.log("getEthBalance")
-  return library.getBalance(account).then((amount) => {
-    console.log("Got ETH balance for", account, amount)
-    return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
+  return library.getBalance(account).then((bigValue) => {
+    const amount = formatUnits(bigValue, constants.STAKED_TOKEN_DECIMALS)
+    console.log("Got ETH balance:", amount)
+    return amount
   })
 }
 
@@ -164,9 +167,10 @@ const getTokenAllowance = () => {
   console.log("getTokenAllowance")
   return tokenContract
     .allowance(account, constants.MAIN_CONTRACT_ADDRESS)
-    .then((amount) => {
-      console.log("Got CITY allowance for", account, amount)
-      return formatUnits(amount, constants.REWARD_TOKEN_DECIMALS)
+    .then((bigValue) => {
+      const amount = formatUnits(bigValue, constants.REWARD_TOKEN_DECIMALS)
+      console.log("Got CITY allowance:", amount)
+      return amount
     })
 }
 

@@ -43,7 +43,9 @@ export default ({
         >
           {isWeb3Active ? (
             <Text textAlign="center">
-              Balance: {balance} {REWARD_TOKEN_SYMBOL}
+              {balance
+                ? `Balance: ${balance} ${REWARD_TOKEN_SYMBOL}`
+                : "Connecting..."}
             </Text>
           ) : (
             <Text textAlign="center">Connect</Text>
