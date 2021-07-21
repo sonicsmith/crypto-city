@@ -5,7 +5,9 @@ export const formatMoney = (amount) => {
 
   const [integer, decimals] = amount.toString().split(".")
   const commaInt = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  return commaInt + (decimals ? "." + decimals : "")
+
+  const decimalPlaces = 4
+  return commaInt + (decimals ? "." + decimals.substr(0, decimalPlaces) : "")
 }
 
 export const pause = (milliseconds) => {

@@ -85,7 +85,7 @@ function App() {
     const tokenBal = await api.getTokenBalance()
     setTokenBalance(tokenBal)
     const cityMap = await api.getMap()
-    setCityState({ ...cityState, cityMap })
+    setCityState({ ...cityState, cityMap, selectedTile: -1, showModal: false })
     const stakedTokenBal = await api.getStakedBalance()
     setStakedTokenBalance(stakedTokenBal)
     setLoadingMessage()
@@ -158,6 +158,7 @@ function App() {
           setCityState={setCityState}
           setError={setError}
           setLoadingMessage={setLoadingMessage}
+          refreshAccount={refreshAccount}
         />
       )}
       {page === pages.games && <Games />}

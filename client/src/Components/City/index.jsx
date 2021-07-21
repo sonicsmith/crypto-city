@@ -7,7 +7,7 @@ import images from "./../../Images"
 import api from "./../../API"
 import { formatMoney } from "./../../Utils/misc"
 import constants from "./../../Utils/constants"
-import Loading from "../Loading"
+
 const {
   GAP,
   TILE_WIDTH,
@@ -145,9 +145,9 @@ const TileInfoPanel = ({
 
   if (selectedTileType > 0) {
     body.push(
-      `• Sell all on this plot for ${
+      `• Sell all on this plot for ${formatMoney(
         investmentUnitPrice * selectedTileType
-      } CITY`
+      )} CITY`
     )
   }
 
@@ -201,6 +201,7 @@ export default ({
   setCityState,
   setError,
   setLoadingMessage,
+  refreshAccount,
 }) => {
   const { selectedTile, showModal } = cityState
 
@@ -299,12 +300,7 @@ export default ({
                   setLoadingMessage()
                 }
                 console.log("Updating map", updatedMap)
-                setCityState({
-                  ...cityState,
-                  cityMap: updatedMap,
-                  selectedTile: -1,
-                  showModal: false,
-                })
+                refreshAccount()
               } catch (error) {
                 setLoadingMessage()
                 setError(error.message)
