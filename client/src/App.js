@@ -77,17 +77,27 @@ function App() {
   const [cityState, setCityState] = useState(defaultCityState)
 
   const refreshAccount = async () => {
-    setLoadingMessage("Loading Account")
-    setEthBalance()
-    setTokenBalance()
-    const ethBal = await api.getEthBalance()
-    setEthBalance(ethBal)
-    const tokenBal = await api.getTokenBalance()
-    setTokenBalance(tokenBal)
-    const cityMap = await api.getMap()
-    setCityState({ ...cityState, cityMap, selectedTile: -1, showModal: false })
-    const stakedTokenBal = await api.getStakedBalance()
-    setStakedTokenBalance(stakedTokenBal)
+    try {
+      setLoadingMessage("Loading..")
+      setEthBalance()
+      setTokenBalance()
+      const ethBal = await api.getEthBalance()
+      setEthBalance(ethBal)
+      const tokenBal = await api.getTokenBalance()
+      setTokenBalance(tokenBal)
+      const cityMap = await api.getMap()
+      setCityState({
+        ...cityState,
+        cityMap,
+        selectedTile: -1,
+        showModal: false,
+      })
+      const stakedTokenBal = await api.getStakedBalance()
+      setStakedTokenBalance(stakedTokenBal)
+    } catch (e) {
+      console.log(e)
+      setLoadingMessage()
+    }
     setLoadingMessage()
   }
 
